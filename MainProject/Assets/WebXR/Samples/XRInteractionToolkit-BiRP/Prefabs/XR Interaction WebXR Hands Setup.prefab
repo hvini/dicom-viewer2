@@ -231,6 +231,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5773256366622995465}
     m_Modifications:
+    - target: {fileID: 56141618079424884, guid: 4200643e995fc3d41bb31289ebe0439e,
+        type: 3}
+      propertyPath: m_Parameters.widthMultiplier
+      value: 0.0035
+      objectReference: {fileID: 0}
     - target: {fileID: 347444573301354365, guid: 4200643e995fc3d41bb31289ebe0439e,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -285,6 +290,31 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: XR Origin (XR Rig)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1370563704594332244, guid: 4200643e995fc3d41bb31289ebe0439e,
+        type: 3}
+      propertyPath: m_Parameters.widthMultiplier
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2135277266898303249, guid: 4200643e995fc3d41bb31289ebe0439e,
+        type: 3}
+      propertyPath: m_Parameters.widthMultiplier
+      value: 0.005
+      objectReference: {fileID: 0}
+    - target: {fileID: 2167449885119325594, guid: 4200643e995fc3d41bb31289ebe0439e,
+        type: 3}
+      propertyPath: m_Parameters.widthMultiplier
+      value: 0.005
+      objectReference: {fileID: 0}
+    - target: {fileID: 3673349630624407117, guid: 4200643e995fc3d41bb31289ebe0439e,
+        type: 3}
+      propertyPath: m_Parameters.widthMultiplier
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 5940220668330188397, guid: 4200643e995fc3d41bb31289ebe0439e,
+        type: 3}
+      propertyPath: m_Parameters.widthMultiplier
+      value: 0.0035
       objectReference: {fileID: 0}
     - target: {fileID: 8088267622252375386, guid: 4200643e995fc3d41bb31289ebe0439e,
         type: 3}
