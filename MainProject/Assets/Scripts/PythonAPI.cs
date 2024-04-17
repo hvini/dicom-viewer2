@@ -7,6 +7,8 @@ using Newtonsoft.Json;
 using UnityVolumeRendering;
 using CandyCoded.env;
 using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit.Transformers;
+using UnityEngine.XR.Interaction.Toolkit;
 
 [Serializable]
 public class Patients
@@ -105,7 +107,6 @@ public class PythonAPI : MonoBehaviour
             else
             {
                 string json = request.downloadHandler.text;
-                Debug.Log(json);
 
                 if (type == "patients")
                 {
@@ -173,16 +174,6 @@ public class PythonAPI : MonoBehaviour
                         dataset.jdlskald = request2.downloadHandler.data;
 
                         VolumeRenderedObject obj = VolumeObjectFactory.CreateObject(dataset, series);
-                        obj.transform.position = new Vector3(0.0f, 0.0f, 1.3f);
-
-                        obj.tag = "Interactable";
-
-                        obj.gameObject.AddComponent<Rigidbody>();
-                        obj.GetComponent<Rigidbody>().useGravity = false;
-                        obj.GetComponent<Rigidbody>().velocity = Vector3.zero;
-
-                        obj.gameObject.AddComponent<BoxCollider>(); 
-
                         currentObj = obj.gameObject;
 
                         //EnableBtns(seriesBtns);

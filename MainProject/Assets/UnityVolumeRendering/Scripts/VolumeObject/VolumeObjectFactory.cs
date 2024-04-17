@@ -1,5 +1,8 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets;
+using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 namespace UnityVolumeRendering
 {
@@ -9,13 +12,22 @@ namespace UnityVolumeRendering
         {
             GameObject outerObject = new GameObject("VolumeRenderedObject_" + dataset.datasetName);
             VolumeRenderedObject volObj = outerObject.AddComponent<VolumeRenderedObject>();
+            Rigidbody rb = outerObject.gameObject.AddComponent<Rigidbody>();
+            rb.useGravity = false;
+            rb.isKinematic = true;
+
+            outerObject.gameObject.AddComponent<XRGrabInteractable>();
+            outerObject.gameObject.AddComponent<XRGeneralGrabTransformer>();
 
             GameObject meshContainer = GameObject.Instantiate((GameObject)Resources.Load("VolumeContainer"));
             meshContainer.transform.parent = outerObject.transform;
             meshContainer.transform.localScale = Vector3.one;
             meshContainer.transform.localPosition = Vector3.zero;
             meshContainer.transform.parent = outerObject.transform;
+            XRPokeFollowAffordance follow = meshContainer.gameObject.AddComponent<XRPokeFollowAffordance>();
+            follow.pokeFollowTransform = outerObject.transform;
             outerObject.transform.localRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
+            outerObject.transform.position = new Vector3(0.0f, 0.7366f, -0.25f);
 
             MeshRenderer meshRenderer = meshContainer.GetComponent<MeshRenderer>();
             meshRenderer.sharedMaterial = new Material(meshRenderer.sharedMaterial);
