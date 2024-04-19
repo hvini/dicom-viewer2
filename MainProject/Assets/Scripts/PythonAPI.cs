@@ -7,8 +7,6 @@ using Newtonsoft.Json;
 using UnityVolumeRendering;
 using CandyCoded.env;
 using UnityEngine.UI;
-using UnityEngine.XR.Interaction.Toolkit.Transformers;
-using UnityEngine.XR.Interaction.Toolkit;
 
 [Serializable]
 public class Patients
@@ -173,7 +171,9 @@ public class PythonAPI : MonoBehaviour
                     {
                         dataset.jdlskald = request2.downloadHandler.data;
 
-                        VolumeRenderedObject obj = VolumeObjectFactory.CreateObject(dataset, series);
+                        VolumeRenderedObject obj = VolumeObjectFactory.CreateObject(dataset);
+                        obj.transform.position = new Vector3(0f, 0.7f, 0f);
+                        obj.SetCubicInterpolationEnabled(true);
                         currentObj = obj.gameObject;
 
                         //EnableBtns(seriesBtns);

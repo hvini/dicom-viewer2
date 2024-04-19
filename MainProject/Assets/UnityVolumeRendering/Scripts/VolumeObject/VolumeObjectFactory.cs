@@ -1,35 +1,50 @@
 ﻿using System;
+using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
-using UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets;
-using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 namespace UnityVolumeRendering
 {
     public class VolumeObjectFactory
     {
-        public static VolumeRenderedObject CreateObject(VolumeDataset dataset, Series? series = null)
+        public static VolumeRenderedObject CreateObject(VolumeDataset dataset)
         {
             GameObject outerObject = new GameObject("VolumeRenderedObject_" + dataset.datasetName);
             VolumeRenderedObject volObj = outerObject.AddComponent<VolumeRenderedObject>();
-            Rigidbody rb = outerObject.gameObject.AddComponent<Rigidbody>();
-            rb.useGravity = false;
-            rb.isKinematic = true;
-
-            outerObject.gameObject.AddComponent<XRGrabInteractable>();
-            outerObject.gameObject.AddComponent<XRGeneralGrabTransformer>();
 
             GameObject meshContainer = GameObject.Instantiate((GameObject)Resources.Load("VolumeContainer"));
+            volObj.volumeContainerObject = meshContainer;
+            MeshRenderer meshRenderer = meshContainer.GetComponent<MeshRenderer>();
+
+            CreateObjectInternal(dataset, meshContainer, meshRenderer, volObj, outerObject);
+
+            meshRenderer.sharedMaterial.SetTexture("_DataTex", dataset.GetDataTexture());
+
+            return volObj;
+        }
+        public static async Task<VolumeRenderedObject> CreateObjectAsync(VolumeDataset dataset, IProgressHandler progressHandler = null)
+        {
+            GameObject outerObject = new GameObject("VolumeRenderedObject_" + dataset.datasetName);
+            VolumeRenderedObject volObj = outerObject.AddComponent<VolumeRenderedObject>();
+
+            GameObject meshContainer = GameObject.Instantiate((GameObject)Resources.Load("VolumeContainer"));
+            volObj.volumeContainerObject = meshContainer;
+            MeshRenderer meshRenderer = meshContainer.GetComponent<MeshRenderer>();
+
+            CreateObjectInternal(dataset,meshContainer, meshRenderer,volObj,outerObject) ;
+
+            meshRenderer.sharedMaterial.SetTexture("_DataTex", await dataset.GetDataTextureAsync(progressHandler));
+
+            return volObj;
+        }
+
+        private static void CreateObjectInternal(VolumeDataset dataset, GameObject meshContainer, MeshRenderer meshRenderer, VolumeRenderedObject volObj, GameObject outerObject, IProgressHandler progressHandler = null)
+        {            
             meshContainer.transform.parent = outerObject.transform;
             meshContainer.transform.localScale = Vector3.one;
             meshContainer.transform.localPosition = Vector3.zero;
             meshContainer.transform.parent = outerObject.transform;
-            XRPokeFollowAffordance follow = meshContainer.gameObject.AddComponent<XRPokeFollowAffordance>();
-            follow.pokeFollowTransform = outerObject.transform;
-            outerObject.transform.localRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
-            outerObject.transform.position = new Vector3(0.0f, 0.7366f, -0.25f);
+            outerObject.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
 
-            MeshRenderer meshRenderer = meshContainer.GetComponent<MeshRenderer>();
             meshRenderer.sharedMaterial = new Material(meshRenderer.sharedMaterial);
             volObj.meshRenderer = meshRenderer;
             volObj.dataset = dataset;
@@ -45,7 +60,6 @@ namespace UnityVolumeRendering
             TransferFunction2D tf2D = TransferFunctionDatabase.CreateTransferFunction2D();
             volObj.transferFunction2D = tf2D;
 
-            meshRenderer.sharedMaterial.SetTexture("_DataTex", dataset.GetDataTexture(series));
             meshRenderer.sharedMaterial.SetTexture("_GradientTex", null);
             meshRenderer.sharedMaterial.SetTexture("_NoiseTex", noiseTexture);
             meshRenderer.sharedMaterial.SetTexture("_TFTex", tfTexture);
@@ -54,13 +68,12 @@ namespace UnityVolumeRendering
             meshRenderer.sharedMaterial.DisableKeyword("MODE_MIP");
             meshRenderer.sharedMaterial.DisableKeyword("MODE_SURF");
 
-            if(dataset.scaleX != 0.0f && dataset.scaleY != 0.0f && dataset.scaleZ != 0.0f)
-            {
-                float maxScale = Mathf.Max(dataset.scaleX, dataset.scaleY, dataset.scaleZ);
-                volObj.transform.localScale = new Vector3(dataset.scaleX / maxScale, dataset.scaleY / maxScale, dataset.scaleZ / maxScale);
-            }
+            meshContainer.transform.localScale = dataset.scale;
+            meshContainer.transform.localRotation = dataset.rotation;
 
-            return volObj;
+            // Normalise size (TODO: Add setting for diabling this?)
+            float maxScale = Mathf.Max(dataset.scale.x, dataset.scale.y, dataset.scale.z);
+            volObj.transform.localScale = Vector3.one / maxScale;
         }
 
         public static void SpawnCrossSectionPlane(VolumeRenderedObject volobj)
@@ -68,7 +81,7 @@ namespace UnityVolumeRendering
             GameObject quad = GameObject.Instantiate((GameObject)Resources.Load("CrossSectionPlane"));
             quad.transform.rotation = Quaternion.Euler(270.0f, 0.0f, 0.0f);
             CrossSectionPlane csplane = quad.gameObject.GetComponent<CrossSectionPlane>();
-            csplane.targetObject = volobj;
+            csplane.SetTargetObject(volobj);
             quad.transform.position = volobj.transform.position;
 
 #if UNITY_EDITOR
@@ -81,7 +94,19 @@ namespace UnityVolumeRendering
             GameObject obj = GameObject.Instantiate((GameObject)Resources.Load("CutoutBox"));
             obj.transform.rotation = Quaternion.Euler(270.0f, 0.0f, 0.0f);
             CutoutBox cbox = obj.gameObject.GetComponent<CutoutBox>();
-            cbox.targetObject = volobj;
+            cbox.SetTargetObject(volobj);
+            obj.transform.position = volobj.transform.position;
+
+#if UNITY_EDITOR
+            UnityEditor.Selection.objects = new UnityEngine.Object[] { obj };
+#endif
+        }
+        public static void SpawnCutoutSphere(VolumeRenderedObject volobj)
+        {
+            GameObject obj = GameObject.Instantiate((GameObject)Resources.Load("CutoutSphere"));
+            obj.transform.rotation = Quaternion.Euler(270.0f, 0.0f, 0.0f);
+            CutoutSphere cSphere = obj.gameObject.GetComponent<CutoutSphere>();
+            cSphere.SetTargetObject(volobj);
             obj.transform.position = volobj.transform.position;
 
 #if UNITY_EDITOR
